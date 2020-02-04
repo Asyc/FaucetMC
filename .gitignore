@@ -1,0 +1,11 @@
+# IDEA
+.idea/
+out/
+
+# GRADLE
+.gradle/
+gradle/
+build/
+
+# OS X
+.DS_STORE
