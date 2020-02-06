@@ -1,50 +1,81 @@
 package org.faucetmc.chat.component.impl;
 
 import org.faucetmc.chat.component.ChatComponent;
+import org.faucetmc.chat.component.style.ChatStyle;
+import org.faucetmc.chat.event.ComponentClickEvent;
+import org.faucetmc.chat.event.ComponentHoverEvent;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public class ChatComponentText implements ChatComponent {
 
-	private ChatComponent parent;
+    private transient ChatStyle style;
 
-	private String text;
-	private List<ChatComponent> siblings;
+    private transient String text;
+    private transient List<ChatComponent> siblings;
 
-	public ChatComponentText(String text) {
-		this.text = text;
-	}
+    private transient ComponentClickEvent clickEvent;
+    private transient ComponentHoverEvent hoverEvent;
 
-	@Override
-	public String getText() {
-		return text;
-	}
+    public ChatComponentText(String text) {
+        this.text = text;
+    }
 
-	@Override
-	public void setText(String text) {
-		this.text = text;
-	}
+    @Override
+    public String getText() {
+        return text;
+    }
 
-	@Override
-	public void addSibling(ChatComponent component) {
-		if(siblings == null) siblings = new LinkedList<>();
-		component.setParent(this);
-		siblings.add(component);
-	}
+    @Override
+    public ChatComponent setText(String text) {
+        this.text = text;
+        return this;
+    }
 
-	@Override
-	public List<ChatComponent> getSiblings() {
-		return siblings;
-	}
+    @Override
+    public ChatComponent addSibling(ChatComponent component) {
+        if (siblings == null) siblings = new LinkedList<>();
+        siblings.add(component);
+        return this;
+    }
 
-	@Override
-	public ChatComponent getParent() {
-		return parent;
-	}
+    @Override
+    public List<ChatComponent> getSiblings() {
+        return siblings;
+    }
 
-	@Override
-	public void setParent(ChatComponent parent) {
-		this.parent = parent;
-	}
+    @Override
+    public ChatStyle getStyle() {
+        if (style == null) style = new ChatStyle();
+        return style;
+    }
+
+    @Override
+    public ChatComponent setStyle(ChatStyle style) {
+        this.style = style;
+        return this;
+    }
+
+    @Override
+    public ComponentClickEvent getClickEvent() {
+        return clickEvent;
+    }
+
+    @Override
+    public ChatComponent setClickEvent(ComponentClickEvent clickEvent) {
+        this.clickEvent = clickEvent;
+        return this;
+    }
+
+    @Override
+    public ComponentHoverEvent getHoverEvent() {
+        return hoverEvent;
+    }
+
+    @Override
+    public ChatComponent setHoverEvent(ComponentHoverEvent hoverEvent) {
+        this.hoverEvent = hoverEvent;
+        return this;
+    }
 }
