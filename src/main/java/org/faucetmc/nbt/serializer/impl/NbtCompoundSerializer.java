@@ -14,32 +14,32 @@ import java.util.Map;
 
 public class NbtCompoundSerializer extends NbtSerializer<NbtTagCompound> {
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	@Override
-	public void serialize(OutputStream out, NbtTagCompound value) throws IOException {
-		for (Map.Entry<String, NbtTag<?>> compound : value.getPayload().entrySet()) {
-			NbtSerializer serializer = NbtParser.getSerializer(compound.getValue().getType().getID());
-			serializer.writeTagType(out);
-			serializer.writeTagName(out, compound.getKey());
-			serializer.serialize(out, compound.getValue());
-		}
-		out.write(NbtTagType.TAG_END.getID());
-	}
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
+    public void serialize(OutputStream out, NbtTagCompound value) throws IOException {
+        for (Map.Entry<String, NbtTag<?>> compound : value.getPayload().entrySet()) {
+            NbtSerializer serializer = NbtParser.getSerializer(compound.getValue().getType().getID());
+            serializer.writeTagType(out);
+            serializer.writeTagName(out, compound.getKey());
+            serializer.serialize(out, compound.getValue());
+        }
+        out.write(NbtTagType.TAG_END.getID());
+    }
 
-	@Override
-	public NbtTagCompound deserialize(InputStream in, boolean hasName) throws IOException {
-		HashMap<String, NbtTag<?>> entries = new HashMap<>();
-		for (; ; ) {
-			int read = in.read();
-			if (read == NbtTagType.TAG_END.getID()) break;
-			NbtSerializer<?> serializer = NbtParser.getSerializer(read);
-			entries.put(serializer.readTagName(in), serializer.deserialize(in, true));
-		}
-		return new NbtTagCompound(entries);
-	}
+    @Override
+    public NbtTagCompound deserialize(InputStream in, boolean hasName) throws IOException {
+        HashMap<String, NbtTag<?>> entries = new HashMap<>();
+        for (; ; ) {
+            int read = in.read();
+            if (read == NbtTagType.TAG_END.getID()) break;
+            NbtSerializer<?> serializer = NbtParser.getSerializer(read);
+            entries.put(serializer.readTagName(in), serializer.deserialize(in, true));
+        }
+        return new NbtTagCompound(entries);
+    }
 
-	@Override
-	public NbtTagType getType() {
-		return NbtTagType.TAG_COMPOUND;
-	}
+    @Override
+    public NbtTagType getType() {
+        return NbtTagType.TAG_COMPOUND;
+    }
 }

@@ -5,12 +5,12 @@ import org.faucetmc.nbt.type.NbtTagType;
 
 public class NbtTagDouble extends NbtTag<Double> {
 
-	public NbtTagDouble(double value) {
-		super(value);
-	}
+    public NbtTagDouble(double value) {
+        super(value);
+    }
 
-	@Override
-	public NbtTagType getType() {
-		return NbtTagType.TAG_DOUBLE;
-	}
+    @Override
+    public NbtTagType getType() {
+        return NbtTagType.TAG_DOUBLE;
+    }
 }

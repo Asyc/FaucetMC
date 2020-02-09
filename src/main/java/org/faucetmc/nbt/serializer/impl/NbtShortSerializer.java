@@ -10,19 +10,19 @@ import java.io.OutputStream;
 
 public class NbtShortSerializer extends NbtSerializer<NbtTagShort> {
 
-	@Override
-	public void serialize(OutputStream out, NbtTagShort value) throws IOException {
-		out.write((value.getPayload() >>> 8) & 0xFF);
-		out.write((value.getPayload()) & 0xFF);
-	}
+    @Override
+    public void serialize(OutputStream out, NbtTagShort value) throws IOException {
+        out.write((value.getPayload() >>> 8) & 0xFF);
+        out.write((value.getPayload()) & 0xFF);
+    }
 
-	@Override
-	public NbtTagShort deserialize(InputStream in, boolean hasName) throws IOException {
-		return new NbtTagShort((short) ((in.read() << 8) + (in.read())));
-	}
+    @Override
+    public NbtTagShort deserialize(InputStream in, boolean hasName) throws IOException {
+        return new NbtTagShort((short) ((in.read() << 8) + (in.read())));
+    }
 
-	@Override
-	public NbtTagType getType() {
-		return NbtTagType.TAG_SHORT;
-	}
+    @Override
+    public NbtTagType getType() {
+        return NbtTagType.TAG_SHORT;
+    }
 }

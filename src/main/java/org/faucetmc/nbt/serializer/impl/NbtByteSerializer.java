@@ -10,18 +10,18 @@ import java.io.OutputStream;
 
 public class NbtByteSerializer extends NbtSerializer<NbtTagByte> {
 
-	@Override
-	public void serialize(OutputStream out, NbtTagByte value) throws IOException {
-		out.write(value.getPayload());
-	}
+    @Override
+    public void serialize(OutputStream out, NbtTagByte value) throws IOException {
+        out.write(value.getPayload());
+    }
 
-	@Override
-	public NbtTagByte deserialize(InputStream in, boolean hasName) throws IOException {
-		return new NbtTagByte((byte) in.read());
-	}
+    @Override
+    public NbtTagByte deserialize(InputStream in, boolean hasName) throws IOException {
+        return new NbtTagByte((byte) in.read());
+    }
 
-	@Override
-	public NbtTagType getType() {
-		return NbtTagType.TAG_BYTE;
-	}
+    @Override
+    public NbtTagType getType() {
+        return NbtTagType.TAG_BYTE;
+    }
 }

@@ -5,12 +5,12 @@ import org.faucetmc.nbt.type.NbtTagType;
 
 public class NbtTagIntArray extends NbtTag<int[]> {
 
-	public NbtTagIntArray(int[] value) {
-		super(value);
-	}
+    public NbtTagIntArray(int[] value) {
+        super(value);
+    }
 
-	@Override
-	public NbtTagType getType() {
-		return NbtTagType.TAG_INT_ARRAY;
-	}
+    @Override
+    public NbtTagType getType() {
+        return NbtTagType.TAG_INT_ARRAY;
+    }
 }

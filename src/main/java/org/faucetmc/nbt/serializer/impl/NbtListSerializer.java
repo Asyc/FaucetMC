@@ -14,38 +14,38 @@ import java.util.List;
 
 public class NbtListSerializer extends NbtSerializer<NbtTagList> {
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	@Override
-	public void serialize(OutputStream out, NbtTagList value) throws IOException {
-		int type = value.getPayload().get(0).getType().getID();
-		out.write((type >>> 24) & 0xFF);
-		out.write((type >>> 16) & 0xFF);
-		out.write((type >>> 8) & 0xFF);
-		out.write((type) & 0xFF);
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
+    public void serialize(OutputStream out, NbtTagList value) throws IOException {
+        int type = value.getPayload().get(0).getType().getID();
+        out.write((type >>> 24) & 0xFF);
+        out.write((type >>> 16) & 0xFF);
+        out.write((type >>> 8) & 0xFF);
+        out.write((type) & 0xFF);
 
-		NbtSerializer serializer = NbtParser.getSerializer(type);
-		for (NbtTag<?> tag : value.getPayload()) {
-			serializer.serialize(out, tag);
-		}
-	}
+        NbtSerializer serializer = NbtParser.getSerializer(type);
+        for (NbtTag<?> tag : value.getPayload()) {
+            serializer.serialize(out, tag);
+        }
+    }
 
-	@Override
-	public NbtTagList deserialize(InputStream in, boolean hasName) throws IOException {
-		int type = in.read();
-		int length = ((in.read() << 24) + (in.read() << 16) + (in.read() << 8) + (in.read()));
+    @Override
+    public NbtTagList deserialize(InputStream in, boolean hasName) throws IOException {
+        int type = in.read();
+        int length = ((in.read() << 24) + (in.read() << 16) + (in.read() << 8) + (in.read()));
 
-		NbtSerializer<?> serializer = NbtParser.getSerializer(type);
-		List<NbtTag<?>> tags = new LinkedList<>();
+        NbtSerializer<?> serializer = NbtParser.getSerializer(type);
+        List<NbtTag<?>> tags = new LinkedList<>();
 
-		for (int i = 0; i < length; i++) {
-			tags.add(serializer.deserialize(in, false));
-		}
+        for (int i = 0; i < length; i++) {
+            tags.add(serializer.deserialize(in, false));
+        }
 
-		return new NbtTagList(tags);
-	}
+        return new NbtTagList(tags);
+    }
 
-	@Override
-	public NbtTagType getType() {
-		return NbtTagType.TAG_LIST;
-	}
+    @Override
+    public NbtTagType getType() {
+        return NbtTagType.TAG_LIST;
+    }
 }

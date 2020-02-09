@@ -5,12 +5,12 @@ import org.faucetmc.nbt.type.NbtTagType;
 
 public class NbtTagString extends NbtTag<String> {
 
-	public NbtTagString(String value) {
-		super(value);
-	}
+    public NbtTagString(String value) {
+        super(value);
+    }
 
-	@Override
-	public NbtTagType getType() {
-		return NbtTagType.TAG_STRING;
-	}
+    @Override
+    public NbtTagType getType() {
+        return NbtTagType.TAG_STRING;
+    }
 }

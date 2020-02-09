@@ -5,12 +5,12 @@ import org.faucetmc.nbt.type.NbtTagType;
 
 public class NbtTagShort extends NbtTag<Short> {
 
-	public NbtTagShort(short value) {
-		super(value);
-	}
+    public NbtTagShort(short value) {
+        super(value);
+    }
 
-	@Override
-	public NbtTagType getType() {
-		return NbtTagType.TAG_SHORT;
-	}
+    @Override
+    public NbtTagType getType() {
+        return NbtTagType.TAG_SHORT;
+    }
 }
