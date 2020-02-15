@@ -33,7 +33,7 @@ public class NbtListSerializer extends NbtSerializer<NbtTagList> {
     public NbtTagList deserialize(InputStream in, boolean hasName) throws IOException {
         int type = in.read();
         int length = ((in.read() << 24) + (in.read() << 16) + (in.read() << 8) + (in.read()));
-
+        if(length <= 0) return new NbtTagList(new LinkedList<>());
         NbtSerializer<?> serializer = NbtParser.getSerializer(type);
         List<NbtTag<?>> tags = new LinkedList<>();
 

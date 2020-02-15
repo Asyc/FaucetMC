@@ -18,10 +18,10 @@ public class NbtWriter {
         }
     }
 
-    public static byte[] writeToByteArray(NbtTagCompound compound, boolean compressed) {
+    public static byte[] writeToByteArray(NbtTagCompound compound) {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        try (OutputStream out = compressed ? new GZIPOutputStream(buffer) : buffer) {
-            writeOut(out, compound);
+        try {
+            writeOut(buffer, compound);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

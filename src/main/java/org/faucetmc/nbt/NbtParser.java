@@ -19,6 +19,7 @@ import org.faucetmc.nbt.tag.impl.NbtTagCompound;
 import org.faucetmc.nbt.type.NbtTagType;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -65,11 +66,16 @@ public class NbtParser {
         }
     }
 
-    private static NbtTagCompound readInputStream(InputStream in) throws IOException {
+    public static NbtTagCompound readBytes(byte[] bytes) throws IOException {
+        return NbtParser.readInputStream(new ByteArrayInputStream(bytes));
+    }
+
+    public static NbtTagCompound readInputStream(InputStream in) throws IOException {
         int read = in.read();
         int length = ((in.read() << 8) + (in.read()));
-        if (read == NbtTagType.TAG_END.getID() || read == -1 || length == -1) throw new EOFException();
-        if (read != NbtTagType.TAG_COMPOUND.getID() || length != 0) throw new RuntimeException("No root tag exists");
+        in.read(new byte[length]);
+        if (read == NbtTagType.TAG_END.getID() || read == -1) throw new EOFException();
+        //if (read != NbtTagType.TAG_COMPOUND.getID() || length != 0) throw new RuntimeException("No root tag exists");
         return (NbtTagCompound) SERIALIZERS[read].deserialize(in, true);
     }
 

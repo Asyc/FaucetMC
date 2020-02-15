@@ -33,7 +33,8 @@ public class NbtCompoundSerializer extends NbtSerializer<NbtTagCompound> {
             int read = in.read();
             if (read == NbtTagType.TAG_END.getID()) break;
             NbtSerializer<?> serializer = NbtParser.getSerializer(read);
-            entries.put(serializer.readTagName(in), serializer.deserialize(in, true));
+            String tagName = serializer.readTagName(in);
+            entries.put(tagName, serializer.deserialize(in, true));
         }
         return new NbtTagCompound(entries);
     }
