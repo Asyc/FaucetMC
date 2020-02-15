@@ -12,12 +12,12 @@ import java.util.Arrays;
 
 public class Main {
 
-	public static void main(String[] args) throws Exception {
-		ByteBuffer buffer = ByteBuffer.allocate(10);
-		buffer.putInt(4);
-		buffer.putInt(9);
-		buffer.putInt(0, 6);
-		System.out.println(Arrays.toString(buffer.array()));
-	}
+    public static void main(String[] args) throws Exception {
+        ByteBuffer buffer = ByteBuffer.allocate(10);
+        buffer.putInt(4);
+        buffer.putInt(9);
+        buffer.putInt(0, 6);
+        System.out.println(Arrays.toString(buffer.array()));
+    }
 
 }
