@@ -9,3 +9,6 @@ build/
 
 # OS X
 .DS_STORE
+
+# World
+world

@@ -1,39 +1,30 @@
 package org.faucetmc.nbt;
 
-import org.faucetmc.nbt.serializer.NbtSerializer;
-import org.faucetmc.nbt.tag.impl.NbtTagCompound;
+import org.faucetmc.nbt.type.NbtTagType;
+import org.faucetmc.nbt.type.tag.NbtCompound;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.zip.GZIPOutputStream;
 
 public class NbtWriter {
 
-    public static void writeToFile(File file, NbtTagCompound compound) throws IOException {
-        try (OutputStream out = new GZIPOutputStream(new FileOutputStream(file))) {
-            writeOut(out, compound);
-        }
+    public static void writeToFile(File file, NbtCompound compound) throws IOException {
+        writeToOutputStream(new GZIPOutputStream(new FileOutputStream(file)), compound);
     }
 
-    public static byte[] writeToByteArray(NbtTagCompound compound) {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+    public static byte[] writeToByteArray(NbtCompound compound) {
         try {
-            writeOut(buffer, compound);
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            writeToOutputStream(buffer, compound);
+            return buffer.toByteArray();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return buffer.toByteArray();
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private static void writeOut(OutputStream out, NbtTagCompound compound) throws IOException {
-        NbtSerializer serializer = NbtParser.SERIALIZERS[compound.getType().getID()];
-        serializer.writeTagType(out);
-        serializer.writeTagName(out, "");
-        serializer.serialize(out, compound);
+    public static void writeToOutputStream(OutputStream out, NbtCompound compound) throws IOException {
+        out.write(NbtTagType.TAG_END.getTagID());
+        NbtParser.STRING_SERIALIZER.serialize(out, "");
+        NbtParser.COMPOUND_SERIALIZER.serialize(out, compound);
     }
-
 }

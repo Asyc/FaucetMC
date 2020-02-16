@@ -1,8 +1,8 @@
 package org.faucetmc.world.parse;
 
-import org.faucetmc.nbt.NbtParser;
 import org.faucetmc.nbt.NbtWriter;
-import org.faucetmc.nbt.tag.impl.NbtTagCompound;
+import org.faucetmc.nbt.NbtParser;
+import org.faucetmc.nbt.type.tag.NbtCompound;
 import org.faucetmc.util.FlippableByteArrayOutStream;
 
 import java.io.ByteArrayInputStream;
@@ -26,9 +26,7 @@ public class RegionFile {
     private LocationTableEntry[][] locationTable = new LocationTableEntry[32][32];
     private int[][] timestampTable = new int[32][32];
 
-    private int regionX, regionZ;
-
-    public RegionFile(int regionX, int regionZ, File regionFile) throws IOException {
+    public RegionFile(File regionFile) throws IOException {
         this.file = new RandomAccessFile(regionFile, "rw");
         this.mappedBuffer = file.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, file.length());
 
@@ -76,7 +74,7 @@ public class RegionFile {
         }
     }
 
-    public NbtTagCompound readChunkData(int x, int z) throws IOException {
+    public NbtCompound readChunkData(int x, int z) throws IOException {
         LocationTableEntry entry = locationTable[x][z];
         if(entry == null) return null;
         mappedBuffer.position(entry.getOffset() * TABLE_SIZE);
@@ -92,10 +90,10 @@ public class RegionFile {
             decompressedOut.write(inflaterIn.read());
         }
 
-        return NbtParser.readInputStream(decompressedOut.toInputStream());
+        return NbtParser.readFromInputStream(decompressedOut.toInputStream());
     }
 
-    public void writeChunkData(int x, int z, NbtTagCompound data) throws IOException {
+    public void writeChunkData(int x, int z, NbtCompound data) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         DeflaterOutputStream deflaterOut = new DeflaterOutputStream(out);
         deflaterOut.write(NbtWriter.writeToByteArray(data));

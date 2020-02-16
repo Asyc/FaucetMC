@@ -1,86 +1,44 @@
 package org.faucetmc.nbt;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.faucetmc.nbt.serializer.NbtSerializer;
-import org.faucetmc.nbt.serializer.impl.NbtByteArraySerializer;
-import org.faucetmc.nbt.serializer.impl.NbtByteSerializer;
-import org.faucetmc.nbt.serializer.impl.NbtCompoundSerializer;
-import org.faucetmc.nbt.serializer.impl.NbtDoubleSerializer;
-import org.faucetmc.nbt.serializer.impl.NbtFloatSerializer;
-import org.faucetmc.nbt.serializer.impl.NbtIntSerializer;
-import org.faucetmc.nbt.serializer.impl.NbtListSerializer;
-import org.faucetmc.nbt.serializer.impl.NbtLongSerializer;
-import org.faucetmc.nbt.serializer.impl.NbtShortSerializer;
-import org.faucetmc.nbt.serializer.impl.NbtStringSerializer;
-import org.faucetmc.nbt.serializer.impl.NbtTagIntArraySerializer;
-import org.faucetmc.nbt.serializer.impl.NbtTagLongArraySerializer;
-import org.faucetmc.nbt.tag.impl.NbtTagCompound;
 import org.faucetmc.nbt.type.NbtTagType;
+import org.faucetmc.nbt.type.tag.NbtCompound;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.zip.GZIPInputStream;
 
+@SuppressWarnings("unchecked")
 public class NbtParser {
 
-    static final NbtSerializer<?>[] SERIALIZERS = new NbtSerializer<?>[]{
-            null,   //TAG_END padding
-            new NbtByteSerializer(),
-            new NbtShortSerializer(),
-            new NbtIntSerializer(),
-            new NbtLongSerializer(),
-            new NbtFloatSerializer(),
-            new NbtDoubleSerializer(),
-            new NbtByteArraySerializer(),
-            new NbtStringSerializer(),
-            new NbtListSerializer(),
-            new NbtCompoundSerializer(),
-            new NbtTagIntArraySerializer(),
-            new NbtTagLongArraySerializer(),
-    };
+    static final NbtSerializer<NbtCompound> COMPOUND_SERIALIZER = (NbtSerializer<NbtCompound>) NbtTagType.TAG_COMPOUND.getSerializer();
+    static final NbtSerializer<String> STRING_SERIALIZER = (NbtSerializer<String>) NbtTagType.TAG_STRING.getSerializer();
 
-    private static final Gson GSON;
-
-    static {
-        GsonBuilder builder = new GsonBuilder();
-        /*for(NbtSerializer<?> serializer : SERIALIZERS) {
-            if(serializer == null) continue;
-            builder.registerTypeAdapter(serializer.getType().getClassType(), serializer);
-        }*/
-        GSON = builder.create();
+    public static NbtCompound readFromBytes(byte[] bytes) {
+        try {
+            boolean gzip = (bytes[0] & 0xff | ((bytes[1] << 8) & 0xff00)) == GZIPInputStream.GZIP_MAGIC;
+            InputStream in = gzip ? new GZIPInputStream(new ByteArrayInputStream(bytes)) : new ByteArrayInputStream(bytes);
+            return readFromInputStream(in);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static NbtTagCompound parseFile(File file) throws IOException {
+    public static NbtCompound readFromFile(File file) throws IOException {
         BufferedInputStream bufferedIn = new BufferedInputStream(new FileInputStream(file));
         bufferedIn.mark(2);
         boolean gzip = (bufferedIn.read() & 0xff | ((bufferedIn.read() << 8) & 0xff00)) == GZIPInputStream.GZIP_MAGIC;
         bufferedIn.reset();
-        try (InputStream in = gzip ? new GZIPInputStream(bufferedIn) : bufferedIn) {
-            return NbtParser.readInputStream(in);
+
+        try(InputStream in = gzip ? new GZIPInputStream(bufferedIn) : bufferedIn) {
+            return readFromInputStream(in);
         }
     }
 
-    public static NbtTagCompound readBytes(byte[] bytes) throws IOException {
-        return NbtParser.readInputStream(new ByteArrayInputStream(bytes));
+    public static NbtCompound readFromInputStream(InputStream in) throws IOException {
+        int type = in.read();
+        in.skip((in.read() << 8) + (in.read())); //Key
+        if(type != NbtTagType.TAG_COMPOUND.getTagID()) throw new IOException("No root tag");
+        return COMPOUND_SERIALIZER.deserialize(in);
     }
 
-    public static NbtTagCompound readInputStream(InputStream in) throws IOException {
-        int read = in.read();
-        int length = ((in.read() << 8) + (in.read()));
-        in.read(new byte[length]);
-        if (read == NbtTagType.TAG_END.getID() || read == -1) throw new EOFException();
-        //if (read != NbtTagType.TAG_COMPOUND.getID() || length != 0) throw new RuntimeException("No root tag exists");
-        return (NbtTagCompound) SERIALIZERS[read].deserialize(in, true);
-    }
-
-    @SuppressWarnings("rawtypes")
-    public static NbtSerializer<?> getSerializer(int type) {
-        return SERIALIZERS[type];
-    }
 }
