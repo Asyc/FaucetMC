@@ -77,8 +77,9 @@ public class NbtCompound {
         entries.put(key, value);
     }
 
-    public List<?> getList(String key) {
-        return (List<?>) entries.get(key);
+    @SuppressWarnings("unchecked")
+    public <T> List<T> getList(String key) {
+        return (List<T>) entries.get(key);
     }
 
     public void putCompound(String key, NbtCompound value) {

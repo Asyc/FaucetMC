@@ -3,6 +3,7 @@ package org.faucetmc.world.parse;
 import org.faucetmc.nbt.NbtWriter;
 import org.faucetmc.nbt.NbtParser;
 import org.faucetmc.nbt.type.tag.NbtCompound;
+import org.faucetmc.profiler.Profiler;
 import org.faucetmc.util.FlippableByteArrayOutStream;
 
 import java.io.ByteArrayInputStream;
@@ -26,14 +27,19 @@ public class RegionFile {
     private LocationTableEntry[][] locationTable = new LocationTableEntry[32][32];
     private int[][] timestampTable = new int[32][32];
 
-    public RegionFile(File regionFile) throws IOException {
-        this.file = new RandomAccessFile(regionFile, "rw");
-        this.mappedBuffer = file.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, file.length());
+    private Profiler profiler = new Profiler();
 
+    public RegionFile(File regionFile) throws IOException {
+        profiler.beginSection("Load Region Into Memory");
         if(!regionFile.exists()) {
+            if(!regionFile.exists()) {
+                if(!regionFile.getParentFile().exists()) if(!regionFile.getParentFile().mkdirs()) throw new IOException("Could not create dirs");
+                if(!regionFile.createNewFile()) throw new IOException("Could not create file");
+                this.setFile(regionFile);
+            }
+
             for(int x = 0; x < 32; x++) {
                 for(int z = 0; z < 32; z++) {
-                    timestampTable[x][z] = 0;
                     locationTable[x][z] = new LocationTableEntry(0, (short) 0);
                 }
             }
@@ -41,10 +47,16 @@ public class RegionFile {
             this.writeChunkLocationTable();;
             this.writeChunkTimestampTable();
         } else {
+            this.setFile(regionFile);
             this.reloadChunkLocations();
             this.reloadChunkTimestamps();
         }
+        profiler.endSection();
+    }
 
+    private void setFile(File file) throws IOException {
+        this.file = new RandomAccessFile(file, "rw");
+        this.mappedBuffer = this.file.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, this.file.length());
     }
 
     public void reloadChunkLocations() {
@@ -76,7 +88,7 @@ public class RegionFile {
 
     public NbtCompound readChunkData(int x, int z) throws IOException {
         LocationTableEntry entry = locationTable[x][z];
-        if(entry == null) return null;
+        if(entry == null || (entry.getSize() == 0 && entry.getOffset() == 0)) return null;
         mappedBuffer.position(entry.getOffset() * TABLE_SIZE);
         int length = mappedBuffer.getInt();
         byte compression = mappedBuffer.get();
