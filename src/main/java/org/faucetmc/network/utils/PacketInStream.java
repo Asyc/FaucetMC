@@ -12,8 +12,21 @@ public class PacketInStream extends InputStream {
     private ByteBuf in;
 
     @Override
-    public int read() throws IOException {
+    public int read() {
         return Byte.toUnsignedInt(in.readByte());
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) {
+        for(int i = off; i < len; i++) {
+            b[i] = (byte) readByte();
+        }
+        return len;
+    }
+
+    @Override
+    public int read(byte[] b) {
+        return read(b, 0, b.length);
     }
 
     public byte readByte() {
@@ -32,7 +45,7 @@ public class PacketInStream extends InputStream {
         return VarInteger.read(in);
     }
 
-    public float readLong() {
+    public long readLong() {
         return in.readLong();
     }
 

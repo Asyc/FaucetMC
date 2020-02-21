@@ -1,6 +1,7 @@
 package org.faucetmc.chat.component.impl;
 
 import org.faucetmc.chat.component.ChatComponent;
+import org.faucetmc.chat.component.style.ChatFormatting;
 import org.faucetmc.chat.component.style.ChatStyle;
 import org.faucetmc.chat.event.ComponentClickEvent;
 import org.faucetmc.chat.event.ComponentHoverEvent;
@@ -12,11 +13,11 @@ public final class ChatComponentText implements ChatComponent {
 
     private transient ChatStyle style;
 
-    private transient String text;
-    private transient List<ChatComponent> siblings;
+    private String text;
+    private List<ChatComponent> siblings;
 
-    private transient ComponentClickEvent clickEvent;
-    private transient ComponentHoverEvent hoverEvent;
+    private ComponentClickEvent clickEvent;
+    private ComponentHoverEvent hoverEvent;
 
     public ChatComponentText(String text) {
         this.text = text;

@@ -15,7 +15,7 @@ public class VarInteger {
 
             numRead++;
             if (numRead > 5) {
-                throw new RuntimeException("VarInt is too big");
+                throw new VarIntParseException("VarInt is too big");
             }
         } while ((read & 0b10000000) != 0);
 
@@ -33,7 +33,7 @@ public class VarInteger {
 
             numRead++;
             if (numRead > 5) {
-                throw new RuntimeException("VarInt is too big");
+                throw new VarIntParseException("VarInt is too big");
             }
         } while ((read & 0b10000000) != 0);
 
@@ -42,7 +42,7 @@ public class VarInteger {
 
     public static void write(ByteBuf out, int value) {
         do {
-            byte temp = (byte)(value & 0b01111111);
+            byte temp = (byte) (value & 0b01111111);
             // Note: >>> means that the sign bit is shifted with the rest of the number rather than being left alone
             value >>>= 7;
             if (value != 0) {
@@ -52,18 +52,47 @@ public class VarInteger {
         } while (value != 0);
     }
 
-    public static int getSize(int value) {
-        int size = 0;
+    public static void write(byte[] out, int index, int value) {
         do {
-            byte temp = (byte)(value & 0b01111111);
+            byte temp = (byte) (value & 0b01111111);
             // Note: >>> means that the sign bit is shifted with the rest of the number rather than being left alone
             value >>>= 7;
             if (value != 0) {
                 temp |= 0b10000000;
             }
+            out[index] = temp;
+            index++;
+        } while (value != 0);
+    }
+
+    public static int getSize(int value) {
+        int size = 0;
+        do {
+            // Note: >>> means that the sign bit is shifted with the rest of the number rather than being left alone
+            value >>>= 7;
             size++;
         } while (value != 0);
         return size;
     }
 
+    public static class VarIntParseException extends RuntimeException {
+        public VarIntParseException() {
+        }
+
+        public VarIntParseException(String message) {
+            super(message);
+        }
+
+        public VarIntParseException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+        public VarIntParseException(Throwable cause) {
+            super(cause);
+        }
+
+        public VarIntParseException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+            super(message, cause, enableSuppression, writableStackTrace);
+        }
+    }
 }

@@ -1,7 +1,7 @@
 package org.faucetmc.network.player;
 
 import io.netty.channel.socket.SocketChannel;
-import org.faucetmc.network.packet.OutboundPacket;
+import org.faucetmc.network.packet.abstraction.OutboundPacket;
 import org.faucetmc.network.utils.PacketInStream;
 import org.faucetmc.network.utils.PacketOutStream;
 
@@ -19,7 +19,7 @@ public class PlayerConnection  {
     private PacketOutStream outBuffer;
     private PacketInStream inBuffer;
 
-    private final Object SEND_LOCK = new Object();
+    private ConnectionState connectionState = ConnectionState.HANDSHAKE;
 
     public PlayerConnection(SocketChannel channel) {
         this.channel = channel;
@@ -27,10 +27,8 @@ public class PlayerConnection  {
         this.inBuffer = new PacketInStream();
     }
 
-    public void writeAndFlushPacket(OutboundPacket packet) {
-        synchronized (SEND_LOCK) {
-            channel.writeAndFlush(packet);
-        }
+    public synchronized void writePacketImmediately(OutboundPacket packet) {
+        channel.writeAndFlush(packet);
     }
 
     public boolean isEncryptionEnabled() {
@@ -41,6 +39,10 @@ public class PlayerConnection  {
         this.encryptionEnabled = true;
         this.secretKey = secretKey;
         this.ivParameterSpec = parameterSpec;
+    }
+
+    public SocketChannel getChannel() {
+        return channel;
     }
 
     public SecretKey getSecretKey() {
@@ -57,5 +59,17 @@ public class PlayerConnection  {
 
     public PacketInStream getInBuffer() {
         return inBuffer;
+    }
+
+    public ConnectionState getConnectionState() {
+        return connectionState;
+    }
+
+    public void setConnectionState(ConnectionState connectionState) {
+        this.connectionState = connectionState;
+    }
+
+    public enum ConnectionState {
+        HANDSHAKE, QUERY, LOGIN, PLAY
     }
 }

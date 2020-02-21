@@ -23,21 +23,26 @@ public class NbtParser {
         }
     }
 
-    public static NbtCompound readFromFile(File file) throws IOException {
-        BufferedInputStream bufferedIn = new BufferedInputStream(new FileInputStream(file));
-        bufferedIn.mark(2);
-        boolean gzip = (bufferedIn.read() & 0xff | ((bufferedIn.read() << 8) & 0xff00)) == GZIPInputStream.GZIP_MAGIC;
-        bufferedIn.reset();
+    public static NbtCompound readFromFile(File file) {
+        try {
+            BufferedInputStream bufferedIn = new BufferedInputStream(new FileInputStream(file));
+            bufferedIn.mark(2);
+            boolean gzip = (bufferedIn.read() & 0xff | ((bufferedIn.read() << 8) & 0xff00)) == GZIPInputStream.GZIP_MAGIC;
+            bufferedIn.reset();
 
-        try(InputStream in = gzip ? new GZIPInputStream(bufferedIn) : bufferedIn) {
-            return readFromInputStream(in);
+            try (InputStream in = gzip ? new GZIPInputStream(bufferedIn) : bufferedIn) {
+                return readFromInputStream(in);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
+
 
     public static NbtCompound readFromInputStream(InputStream in) throws IOException {
         int type = in.read();
         in.skip((in.read() << 8) + (in.read())); //Key
-        if(type != NbtTagType.TAG_COMPOUND.getTagID()) throw new IOException("No root tag");
+        if (type != NbtTagType.TAG_COMPOUND.getTagID()) throw new IOException("No root tag");
         return COMPOUND_SERIALIZER.deserialize(in);
     }
 

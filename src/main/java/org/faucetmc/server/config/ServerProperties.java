@@ -16,7 +16,7 @@ public class ServerProperties {
     private int nioThreads = (int) Math.ceil(Runtime.getRuntime().availableProcessors() / 3.0F);
 
     private int serverPort = 25565;
-    private String serverIP = "localhost";
+    private String serverIP = "0.0.0.0";
     private boolean onlineMode =  true;
     private int gamemode = 0;
     private int maxPlayers = 20;

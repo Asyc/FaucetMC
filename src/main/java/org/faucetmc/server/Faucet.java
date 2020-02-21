@@ -1,7 +1,10 @@
 package org.faucetmc.server;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.faucetmc.network.NetworkManager;
 import org.faucetmc.server.config.ServerProperties;
 import org.faucetmc.world.World;
 import org.yaml.snakeyaml.Yaml;
@@ -9,7 +12,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.LinkedList;
+import java.net.InetAddress;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,6 +20,10 @@ import java.util.concurrent.Executors;
 public class Faucet {
 
     public static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
+    public static final Gson GSON_PRETTY_PRINT = new GsonBuilder().setPrettyPrinting().create();
+    public static final Gson GSON = new Gson();
+    public static MinecraftServer MINECRAFT_SERVER;
+
     private static Faucet instance;
 
     private static Logger logger = LogManager.getLogger(Faucet.class);
@@ -24,7 +31,7 @@ public class Faucet {
 
     private ServerProperties properties;
 
-    private List<World> worlds = new LinkedList<>();
+    private NetworkManager networkManager;
 
     public Faucet() {
         instance = this;
@@ -42,8 +49,26 @@ public class Faucet {
                 }
             }
         }
-        logger.info("Loading World");
-        worlds.add(new World(properties.getLevelName()));
+
+        MINECRAFT_SERVER = new MinecraftServer();
+
+        logger.info("Starting Network Server");
+        {
+            try {
+                this.networkManager = new NetworkManager();
+                this.networkManager.start(InetAddress.getByName(properties.getServerIP()), properties.getServerPort());
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(-1);
+            }
+        }
+
+        logger.info("Starting Game Loop");
+        MINECRAFT_SERVER.startGameLoop();
+    }
+
+    public void doTick() {
+
     }
 
     public ServerProperties getProperties() {

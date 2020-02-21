@@ -5,22 +5,36 @@ import org.faucetmc.server.Faucet;
 
 public class Profiler {
 
-    private final Logger logger = Faucet.getLogger();
+    private static final Logger logger = Faucet.getLogger();
+    private static final Object LOG_LOCK = new Object();
 
     private String name;
     private long time;
 
     public void beginSection(String name) {
-        this.time = System.nanoTime();
         this.name = name;
-        logger.debug("----Profiler: Begin Section: {}----", name);
+        this.time = System.nanoTime();
+        log("----Profiler Start: Section {}", name);
     }
 
     public void endSection() {
-        long difference = System.nanoTime() - time;
-        logger.debug("----Profiler End: Took {} milliseconds to {}----", difference / 1000000L, name);
-        this.name = null;
-        this.time = 0;
+        String name = this.name;
+        long time = this.time;
+        Faucet.EXECUTOR_SERVICE.submit(() -> {
+            long difference = System.nanoTime() - time;
+            long unit = difference / 1000000L;
+            String unitName = "milliseconds";
+            if(unit <= 0) {
+                unitName = "nanoseconds";
+                unit = difference;
+            }
+            log("----Profiler End: Section {} took {} {} to complete----", name, unit, unitName);
+        });
     }
 
+    private void log(String text, Object... args) {
+        synchronized (LOG_LOCK) {
+            logger.debug(text, args);
+        }
+    }
 }
